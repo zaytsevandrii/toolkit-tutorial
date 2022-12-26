@@ -3,7 +3,7 @@ import cartItems from '../../cartItems'
 
 const initialState = {
   cartItems:cartItems,
-  amount:1,
+  amount:0,
   total:0,
   isLoading:true
 }
@@ -12,18 +12,34 @@ export const cartSlice = createSlice({
   name: 'cart',
   initialState,
   reducers: {
-    increment: (state) => {
-      state.value += 1
+    clearCart: (state) => {
+      state.cartItems=[]
     },
-    decrement: (state) => {
-      state.value -= 1
+    removeItems:(state,action)=>{
+      const itemId=action.payload
+      state.cartItems=state.cartItems.filter(item=>item.id!==itemId)
     },
-    incrementByAmount: (state, action) => {
-      state.value += action.payload
+    increase:(state,{payload})=>{
+      const cartItem=state.cartItems.find(item=>item.id==payload)
+      cartItem.amount=cartItem.amount+1
     },
+    decrease:(state,{payload})=>{
+      const cartItem=state.cartItems.find(item=>item.id==payload)
+      cartItem.amount=cartItem.amount<1?0:cartItem.amount-1
+    },
+    calculateTotals:(state)=>{
+      let amount=0
+      let total=0
+      state.cartItems.forEach(item=>{
+        amount+=item.amount
+        total+=item.amount*item.price
+      })
+      state.amount=amount
+      state.total=total.toFixed(2)
+    }
   },
 })
 
-export const { increment, decrement, incrementByAmount } = cartSlice.actions
+export const { increase, decrease, clearCart,removeItems,calculateTotals } = cartSlice.actions
 
 export default cartSlice.reducer
